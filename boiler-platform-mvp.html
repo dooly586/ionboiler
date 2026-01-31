@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뉴에너지 보일러 플랫폼 MVP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Role Selector */
+        .role-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .role-btn {
+            padding: 12px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .role-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .role-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            margin: 15px 0 10px 0;
+            color: #333;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        /* Map Placeholder */
+        .map-placeholder {
+            background: linear-gradient(135deg, #e0e7ff 0%, #cffafe 100%);
+            height: 300px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Installer List */
+        .installer-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .installer-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .installer-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .installer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .installer-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .rating {
+            color: #f59e0b;
+            font-size: 14px;
+        }
+
+        .installer-info {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .distance {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Price Table */
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .price-table th,
+        .price-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .price-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .price-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .price {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #718096;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Request Cards */
+        .request-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .request-id {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-new {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* Stats */
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .role-selector {
+                flex-direction: column;
+            }
+
+            .role-btn {
+                width: 100%;
+            }
+        }
+
+        /* Quote Comparison */
+        .quote-comparison {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .quote-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .quote-card.best {
+            border-color: #48bb78;
+            background: #f0fdf4;
+        }
+
+        .quote-installer {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .quote-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .price-diff {
+            font-size: 13px;
+            color: #059669;
+        }
+
+        .price-diff.over {
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔥 뉴에너지 보일러 플랫폼</h1>
+        <p>이온히팅 기술로 66% 에너지 절감</p>
+    </div>
+
+    <div class="role-selector">
+        <button class="role-btn active" onclick="switchRole('consumer')">소비자</button>
+        <button class="role-btn" onclick="switchRole('installer')">설비업체</button>
+        <button class="role-btn" onclick="switchRole('admin')">본사 관리자</button>
+    </div>
+
+    <div class="container">
+        <!-- Consumer View -->
+        <div id="consumer-view" class="view active">
+            <div class="success-message" id="consumer-success"></div>
+
+            <!-- Map & Search -->
+            <div class="card">
+                <h2>📍 주변 설비업체 찾기</h2>
+                <div class="map-placeholder">
+                    🗺️ 지도 (Kakao Map API 연동)
+                </div>
+                <div class="form-group">
+                    <input type="text" placeholder="주소 또는 지역을 입력하세요 (예: 고양시 일산동구)" id="search-location">
+                </div>
+                <button class="btn btn-primary" onclick="searchInstallers()">검색</button>
+            </div>
+
+            <!-- Installer List -->
+            <div class="card">
+                <h2>🏢 추천 설비업체</h2>
+                <div class="installer-list">
+                    <div class="installer-card" onclick="selectInstaller(1)">
+                        <div class="installer-header">
+                            <div class="installer-name">일산보일러설비</div>
+                            <div class="rating">⭐ 4.8 (127)</div>
+                        </div>
+                        <div class="installer-info">📞 010-1234-5678</div>
+                        <div class="installer-info">🏆 시공 실적 250건 | 평균 응답 시간 2시간</div>
+                        <div class="installer-info distance">📍 1.2km 거리</div>
+                    </div>
+
+                    <div class="installer-card" onclick="selectInstaller(2)">
+                        <div class="installer-header">
+                            <div class="installer-name">경기보일러</div>
+                            <div class="rating">⭐ 4.6 (89)</div>
+                        </div>
+                        <div class="installer-info">📞 010-2345-6789</div>
+                        <div class="installer-info">🏆 시공 실적 180건 | 평균 응답 시간 3시간</div>
+                        <div class="installer-info distance">📍 2.5km 거리</div>
+                    </div>
+
+                    <div class="installer-card" onclick="selectInstaller(3)">
+                        <div class="installer-header">
+                            <div class="installer-name">프리미엄설비</div>
+                            <div class="rating">⭐ 4.9 (203)</div>
+                        </div>
+                        <div class="installer-info">📞 010-3456-7890</div>
+                        <div class="installer-info">🏆 시공 실적 380건 | 평균 응답 시간 1시간</div>
+                        <div class="installer-info distance">📍 3.1km 거리</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Standard Price -->
+            <div class="card">
+                <h2>💰 본사 공시 가격표</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">투명한 가격으로 합리적인 선택을 하세요</p>
+                <table class="price-table">
+                    <thead>
+                        <tr>
+                            <th>제품명</th>
+                            <th>평형</th>
+                            <th>공시 가격</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>이온히팅 보일러 Standard</td>
+                            <td>20평</td>
+                            <td class="price">2,200,000원</td>
+                        </tr>
+                        <tr>
+                            <td>이온히팅 보일러 Standard</td>
+                            <td>30평</td>
+                            <td class="price">2,500,000원</td>
+                        </tr>
+                        <tr>
+                            <td>이온히팅 보일러 Premium</td>
+                            <td>30평</td>
+                            <td class="price">2,900,000원</td>
+                        </tr>
+                        <tr>
+                            <td>이온히팅 보일러 Premium</td>
+                            <td>40평</td>
+                            <td class="price">3,200,000원</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Consultation Request -->
+            <div class="card">
+                <h2>📝 상담 신청하기</h2>
+                <form onsubmit="submitConsultation(event)">
+                    <div class="form-group">
+                        <label>이름</label>
+                        <input type="text" required placeholder="홍길동">
+                    </div>
+                    <div class="form-group">
+                        <label>연락처</label>
+                        <input type="tel" required placeholder="010-1234-5678">
+                    </div>
+                    <div class="form-group">
+                        <label>주소</label>
+                        <input type="text" required placeholder="경기도 고양시 일산동구...">
+                    </div>
+                    <div class="form-group">
+                        <label>평형</label>
+                        <select required>
+                            <option value="">선택하세요</option>
+                            <option value="20">20평</option>
+                            <option value="30">30평</option>
+                            <option value="40">40평</option>
+                            <option value="50">50평 이상</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>상담 내용</label>
+                        <textarea placeholder="신규 설치, 교체, A/S 등 원하시는 내용을 작성해주세요"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>희망 설비업체 (선택)</label>
+                        <select>
+                            <option value="">자동 배정</option>
+                            <option value="1">일산보일러설비</option>
+                            <option value="2">경기보일러</option>
+                            <option value="3">프리미엄설비</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">상담 신청</button>
+                </form>
+            </div>
+
+            <!-- A/S Request -->
+            <div class="card">
+                <h2>🔧 A/S 신고하기</h2>
+                <form onsubmit="submitAS(event)">
+                    <div class="form-group">
+                        <label>고장 증상</label>
+                        <select required>
+                            <option value="">선택하세요</option>
+                            <option value="no-heat">난방이 안돼요</option>
+                            <option value="no-water">온수가 안나와요</option>
+                            <option value="noise">이상한 소리가 나요</option>
+                            <option value="leak">물이 새요</option>
+                            <option value="error">에러 코드가 떠요</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>긴급도</label>
+                        <select required>
+                            <option value="normal">일반 (2-3일 내)</option>
+                            <option value="urgent">긴급 (당일 출동)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>상세 설명</label>
+                        <textarea placeholder="증상을 자세히 설명해주세요"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>사진 첨부 (선택)</label>
+                        <input type="file" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-danger" style="width: 100%;">A/S 신고</button>
+                </form>
+            </div>
+
+            <!-- Quote Comparison -->
+            <div class="card">
+                <h2>💵 받은 견적서 비교</h2>
+                <div class="quote-comparison">
+                    <div class="quote-card best">
+                        <div class="quote-installer">✅ 일산보일러설비 (추천)</div>
+                        <div class="quote-price">2,580,000원</div>
+                        <div class="price-diff">공시가 대비 +3.2% (80,000원)</div>
+                        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                            • 제품: 이온히팅 30평 Standard<br>
+                            • 공임비: 300,000원<br>
+                            • 부자재: 280,000원<br>
+                            • 시공기간: 1일<br>
+                            • 보증: 3년
+                        </p>
+                        <button class="btn btn-success" style="width: 100%; margin-top: 10px;">이 업체 선택</button>
+                    </div>
+
+                    <div class="quote-card">
+                        <div class="quote-installer">경기보일러</div>
+                        <div class="quote-price">2,750,000원</div>
+                        <div class="price-diff over">공시가 대비 +10% (250,000원)</div>
+                        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                            • 제품: 이온히팅 30평 Standard<br>
+                            • 공임비: 350,000원<br>
+                            • 부자재: 400,000원<br>
+                            • 시공기간: 1일<br>
+                            • 보증: 2년
+                        </p>
+                        <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;">상담하기</button>
+                    </div>
+
+                    <div class="quote-card">
+                        <div class="quote-installer">프리미엄설비</div>
+                        <div class="quote-price">2,650,000원</div>
+                        <div class="price-diff over">공시가 대비 +6% (150,000원)</div>
+                        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                            • 제품: 이온히팅 30평 Standard<br>
+                            • 공임비: 350,000원<br>
+                            • 부자재: 300,000원<br>
+                            • 시공기간: 1일<br>
+                            • 보증: 5년 (프리미엄)
+                        </p>
+                        <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;">상담하기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Installer View -->
+        <div id="installer-view" class="view">
+            <div class="success-message" id="installer-success"></div>
+
+            <!-- Stats -->
+            <div class="grid-3">
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">신규 상담 요청</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">진행 중 작업</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">45</div>
+                    <div class="stat-label">이번 달 완료</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="card" style="margin-top: 20px;">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchInstallerTab('requests')">상담 요청</button>
+                    <button class="tab" onclick="switchInstallerTab('quote')">견적 작성</button>
+                    <button class="tab" onclick="switchInstallerTab('order')">본사 주문</button>
+                    <button class="tab" onclick="switchInstallerTab('schedule')">일정 관리</button>
+                </div>
+
+                <!-- Consultation Requests -->
+                <div id="installer-requests" class="tab-content">
+                    <h3>새로운 상담 요청</h3>
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-id">#2024-0315</div>
+                            <span class="badge badge-new">신규</span>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>홍길동</strong> | 010-1234-5678<br>
+                            📍 고양시 일산동구 마두동 (1.2km)<br>
+                            🏠 30평 아파트 | 신규 설치
+                        </div>
+                        <div style="color: #666; font-size: 13px; margin-bottom: 10px;">
+                            "기존 전기보일러를 이온히팅으로 교체하고 싶습니다. 전기료 절감이 목표입니다."
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="createQuote()">견적 작성</button>
+                            <button class="btn btn-secondary">고객 연락</button>
+                        </div>
+                    </div>
+
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-id">#2024-0314</div>
+                            <span class="badge badge-new">신규</span>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>김영희</strong> | 010-2345-6789<br>
+                            📍 고양시 덕양구 행신동 (2.8km)<br>
+                            🏠 40평 주택 | 신규 설치
+                        </div>
+                        <div style="color: #666; font-size: 13px; margin-bottom: 10px;">
+                            "주택 신축 중입니다. 친환경 보일러를 찾고 있습니다."
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-primary" onclick="createQuote()">견적 작성</button>
+                            <button class="btn btn-secondary">고객 연락</button>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">A/S 요청</h3>
+                    <div class="request-card" style="border-left: 4px solid #f56565;">
+                        <div class="request-header">
+                            <div class="request-id">#AS-2024-0089</div>
+                            <span class="badge" style="background: #fee2e2; color: #991b1b;">긴급</span>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <strong>이철수</strong> | 010-3456-7890<br>
+                            📍 고양시 일산서구 주엽동 (0.8km)<br>
+                            🔧 증상: 난방이 안돼요 | 설치일: 2023.11.15
+                        </div>
+                        <div style="color: #666; font-size: 13px; margin-bottom: 10px;">
+                            "갑자기 난방이 안됩니다. 집이 너무 춥습니다. 빨리 와주세요."
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-danger">즉시 출동</button>
+                            <button class="btn btn-secondary">일정 조율</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quote Creation -->
+                <div id="installer-quote" class="tab-content" style="display: none;">
+                    <h3>견적서 작성</h3>
+                    <form onsubmit="submitQuote(event)">
+                        <div class="form-group">
+                            <label>고객 정보</label>
+                            <select required>
+                                <option value="">상담 요청 선택</option>
+                                <option value="1">#2024-0315 - 홍길동 (30평 신규)</option>
+                                <option value="2">#2024-0314 - 김영희 (40평 신규)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>제품 선택</label>
+                            <select required onchange="updatePrice()">
+                                <option value="">선택하세요</option>
+                                <option value="2500000">이온히팅 30평 Standard (공시가: 2,500,000원)</option>
+                                <option value="2900000">이온히팅 30평 Premium (공시가: 2,900,000원)</option>
+                                <option value="3200000">이온히팅 40평 Premium (공시가: 3,200,000원)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>공임비</label>
+                            <input type="number" required placeholder="300000" value="300000">
+                        </div>
+                        <div class="form-group">
+                            <label>부자재 비용</label>
+                            <input type="number" required placeholder="280000" value="280000">
+                        </div>
+                        <div class="form-group">
+                            <label>출장비</label>
+                            <input type="number" placeholder="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>할인 (선택)</label>
+                            <input type="number" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label>시공 기간</label>
+                            <input type="text" required placeholder="1일" value="1일">
+                        </div>
+                        <div class="form-group">
+                            <label>보증 기간</label>
+                            <select required>
+                                <option value="2">2년</option>
+                                <option value="3" selected>3년 (표준)</option>
+                                <option value="5">5년 (프리미엄)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>특이사항</label>
+                            <textarea placeholder="고객에게 전달할 특이사항을 입력하세요"></textarea>
+                        </div>
+                        <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong style="color: #667eea;">예상 총액: 3,080,000원</strong><br>
+                            <span style="font-size: 13px; color: #666;">공시가 대비: +23.2% (580,000원)</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">견적서 발송</button>
+                    </form>
+                </div>
+
+                <!-- Order from HQ -->
+                <div id="installer-order" class="tab-content" style="display: none;">
+                    <h3>본사 제품 주문</h3>
+                    <form onsubmit="submitOrder(event)">
+                        <div class="form-group">
+                            <label>제품 선택</label>
+                            <select required>
+                                <option value="">선택하세요</option>
+                                <option value="1">이온히팅 20평 Standard - 2,200,000원</option>
+                                <option value="2">이온히팅 30평 Standard - 2,500,000원</option>
+                                <option value="3">이온히팅 30평 Premium - 2,900,000원</option>
+                                <option value="4">이온히팅 40평 Premium - 3,200,000원</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>수량</label>
+                            <input type="number" required min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>배송지</label>
+                            <input type="text" required placeholder="고양시 일산동구 마두동 123-45">
+                        </div>
+                        <div class="form-group">
+                            <label>희망 배송일</label>
+                            <input type="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>고객 정보 (연결)</label>
+                            <select>
+                                <option value="">직접 입력</option>
+                                <option value="1">#2024-0315 - 홍길동</option>
+                                <option value="2">#2024-0314 - 김영희</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">주문하기</button>
+                    </form>
+
+                    <h3 style="margin-top: 30px;">자재 주문</h3>
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>자재명</th>
+                                <th>단가</th>
+                                <th>수량</th>
+                                <th>주문</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>동파이프 15A (1m)</td>
+                                <td>8,500원</td>
+                                <td><input type="number" min="0" value="0" style="width: 60px; padding: 5px;"></td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">담기</button></td>
+                            </tr>
+                            <tr>
+                                <td>보온재 (1m)</td>
+                                <td>3,200원</td>
+                                <td><input type="number" min="0" value="0" style="width: 60px; padding: 5px;"></td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">담기</button></td>
+                            </tr>
+                            <tr>
+                                <td>온도조절기 (무선)</td>
+                                <td>85,000원</td>
+                                <td><input type="number" min="0" value="0" style="width: 60px; padding: 5px;"></td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">담기</button></td>
+                            </tr>
+                            <tr>
+                                <td>밸브 세트</td>
+                                <td>45,000원</td>
+                                <td><input type="number" min="0" value="0" style="width: 60px; padding: 5px;"></td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">담기</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 15px;">자재 일괄 주문</button>
+
+                    <h3 style="margin-top: 30px;">주문 내역</h3>
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-id">#ORD-2024-0089</div>
+                            <span class="badge badge-progress">배송 중</span>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            이온히팅 30평 Standard x 1개<br>
+                            주문일: 2024.03.10 | 배송 예정: 2024.03.15<br>
+                            배송지: 고양시 일산동구 마두동 123-45
+                        </div>
+                        <button class="btn btn-secondary">배송 추적</button>
+                    </div>
+                </div>
+
+                <!-- Schedule -->
+                <div id="installer-schedule" class="tab-content" style="display: none;">
+                    <h3>이번 주 일정</h3>
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div style="font-weight: 600;">2024년 3월 15일 (금)</div>
+                            <span class="badge badge-progress">진행 중</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <div style="padding: 10px; background: #fef3c7; border-radius: 6px; margin-bottom: 8px;">
+                                <strong>09:00 - 12:00</strong> | 홍길동 고객 시공<br>
+                                📍 고양시 일산동구 마두동 | 30평 신규 설치
+                            </div>
+                            <div style="padding: 10px; background: #fee2e2; border-radius: 6px; margin-bottom: 8px;">
+                                <strong>14:00 - 16:00</strong> | 이철수 고객 A/S (긴급)<br>
+                                📍 고양시 일산서구 주엽동 | 난방 고장
+                            </div>
+                            <div style="padding: 10px; background: #dbeafe; border-radius: 6px;">
+                                <strong>16:30 - 17:30</strong> | 김영희 고객 현장 상담<br>
+                                📍 고양시 덕양구 행신동 | 신규 설치 상담
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 20px;">다음 주 예정</h3>
+                    <div class="request-card">
+                        <div style="color: #666; text-align: center; padding: 20px;">
+                            예정된 일정이 없습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin View -->
+        <div id="admin-view" class="view">
+            <div class="success-message" id="admin-success"></div>
+
+            <!-- Stats Dashboard -->
+            <div class="grid-3">
+                <div class="stat-card">
+                    <div class="stat-value">127</div>
+                    <div class="stat-label">등록 설비업체</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">1,245</div>
+                    <div class="stat-label">총 설치 대수</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">89</div>
+                    <div class="stat-label">이번 달 주문</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="card" style="margin-top: 20px;">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchAdminTab('price')">가격 공시</button>
+                    <button class="tab" onclick="switchAdminTab('installers')">설비업체 관리</button>
+                    <button class="tab" onclick="switchAdminTab('orders')">주문 관리</button>
+                    <button class="tab" onclick="switchAdminTab('stats')">통계</button>
+                </div>
+
+                <!-- Price Management -->
+                <div id="admin-price" class="tab-content">
+                    <h3>표준 가격 공시</h3>
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>제품명</th>
+                                <th>평형</th>
+                                <th>공시 가격</th>
+                                <th>최종 수정일</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>이온히팅 보일러 Standard</td>
+                                <td>20평</td>
+                                <td class="price">2,200,000원</td>
+                                <td>2024.03.01</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                            <tr>
+                                <td>이온히팅 보일러 Standard</td>
+                                <td>30평</td>
+                                <td class="price">2,500,000원</td>
+                                <td>2024.03.01</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                            <tr>
+                                <td>이온히팅 보일러 Premium</td>
+                                <td>30평</td>
+                                <td class="price">2,900,000원</td>
+                                <td>2024.03.01</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                            <tr>
+                                <td>이온히팅 보일러 Premium</td>
+                                <td>40평</td>
+                                <td class="price">3,200,000원</td>
+                                <td>2024.03.01</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary" style="margin-top: 15px;" onclick="addPrice()">+ 새 제품 추가</button>
+
+                    <h3 style="margin-top: 30px;">자재 가격 공시</h3>
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>자재명</th>
+                                <th>규격</th>
+                                <th>단가</th>
+                                <th>최종 수정일</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>동파이프</td>
+                                <td>15A (1m)</td>
+                                <td class="price">8,500원</td>
+                                <td>2024.02.15</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                            <tr>
+                                <td>보온재</td>
+                                <td>1m</td>
+                                <td class="price">3,200원</td>
+                                <td>2024.02.15</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                            <tr>
+                                <td>온도조절기</td>
+                                <td>무선</td>
+                                <td class="price">85,000원</td>
+                                <td>2024.03.05</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                            <tr>
+                                <td>밸브 세트</td>
+                                <td>표준</td>
+                                <td class="price">45,000원</td>
+                                <td>2024.02.15</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Installer Management -->
+                <div id="admin-installers" class="tab-content" style="display: none;">
+                    <h3>설비업체 승인 대기</h3>
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div style="font-weight: 600;">강남보일러설비</div>
+                            <span class="badge badge-new">승인 대기</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            대표자: 박철수 | 사업자번호: 123-45-67890<br>
+                            주소: 서울시 강남구 테헤란로 123<br>
+                            연락처: 010-1234-5678 | 이메일: park@gangnam.com<br>
+                            자격증: 가스기능사, 보일러기능사
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="btn btn-success" onclick="approveInstaller()">승인</button>
+                            <button class="btn btn-danger">반려</button>
+                            <button class="btn btn-secondary">상세 보기</button>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">활성 설비업체</h3>
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>업체명</th>
+                                <th>등급</th>
+                                <th>평점</th>
+                                <th>이번 달 실적</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>일산보일러설비</td>
+                                <td><span class="badge" style="background: #ffd700; color: #000;">골드</span></td>
+                                <td>⭐ 4.8</td>
+                                <td>18건</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">상세</button></td>
+                            </tr>
+                            <tr>
+                                <td>프리미엄설비</td>
+                                <td><span class="badge" style="background: #c0c0c0; color: #000;">실버</span></td>
+                                <td>⭐ 4.9</td>
+                                <td>12건</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">상세</button></td>
+                            </tr>
+                            <tr>
+                                <td>경기보일러</td>
+                                <td><span class="badge" style="background: #cd7f32; color: #fff;">브론즈</span></td>
+                                <td>⭐ 4.6</td>
+                                <td>8건</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">상세</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Order Management -->
+                <div id="admin-orders" class="tab-content" style="display: none;">
+                    <h3>신규 주문</h3>
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-id">#ORD-2024-0090</div>
+                            <span class="badge badge-new">승인 대기</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            주문 업체: 일산보일러설비<br>
+                            제품: 이온히팅 30평 Standard x 2개<br>
+                            총액: 5,000,000원<br>
+                            배송지: 고양시 일산동구 마두동 123-45<br>
+                            희망 배송일: 2024.03.20
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="btn btn-success" onclick="approveOrder()">승인 및 발송</button>
+                            <button class="btn btn-secondary">수정 요청</button>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">배송 중 주문</h3>
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-id">#ORD-2024-0089</div>
+                            <span class="badge badge-progress">배송 중</span>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            주문 업체: 프리미엄설비<br>
+                            제품: 이온히팅 30평 Premium x 1개<br>
+                            발송일: 2024.03.12 | 예상 도착: 2024.03.15<br>
+                            운송장: CJ대한통운 123456789
+                        </div>
+                        <button class="btn btn-secondary" style="margin-top: 10px;">배송 추적</button>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">완료된 주문</h3>
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>주문번호</th>
+                                <th>업체</th>
+                                <th>제품</th>
+                                <th>금액</th>
+                                <th>배송 완료일</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD-2024-0088</td>
+                                <td>일산보일러설비</td>
+                                <td>30평 Standard x 1</td>
+                                <td class="price">2,500,000원</td>
+                                <td>2024.03.10</td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-2024-0087</td>
+                                <td>경기보일러</td>
+                                <td>40평 Premium x 1</td>
+                                <td class="price">3,200,000원</td>
+                                <td>2024.03.08</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Statistics -->
+                <div id="admin-stats" class="tab-content" style="display: none;">
+                    <h3>월별 판매 현황</h3>
+                    <div style="background: linear-gradient(135deg, #e0e7ff 0%, #cffafe 100%); height: 300px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                        📊 Chart.js / Recharts 그래프 영역
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>지역별 설치 현황</h3>
+                            <table class="price-table">
+                                <thead>
+                                    <tr>
+                                        <th>지역</th>
+                                        <th>설치 대수</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>경기도</td>
+                                        <td class="price">487대</td>
+                                    </tr>
+                                    <tr>
+                                        <td>서울</td>
+                                        <td class="price">356대</td>
+                                    </tr>
+                                    <tr>
+                                        <td>인천</td>
+                                        <td class="price">198대</td>
+                                    </tr>
+                                    <tr>
+                                        <td>기타</td>
+                                        <td class="price">204대</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="card">
+                            <h3>인기 제품</h3>
+                            <table class="price-table">
+                                <thead>
+                                    <tr>
+                                        <th>제품</th>
+                                        <th>판매량</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>30평 Standard</td>
+                                        <td class="price">523대</td>
+                                    </tr>
+                                    <tr>
+                                        <td>30평 Premium</td>
+                                        <td class="price">312대</td>
+                                    </tr>
+                                    <tr>
+                                        <td>40평 Premium</td>
+                                        <td class="price">245대</td>
+                                    </tr>
+                                    <tr>
+                                        <td>20평 Standard</td>
+                                        <td class="price">165대</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 20px;">고객 만족도</h3>
+                    <div class="grid-3">
+                        <div class="stat-card">
+                            <div class="stat-value">4.7</div>
+                            <div class="stat-label">평균 평점</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">94%</div>
+                            <div class="stat-label">재구매 의향</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">2.5h</div>
+                            <div class="stat-label">평균 A/S 응답 시간</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Price Edit -->
+    <div id="price-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('price-modal')">&times;</span>
+            <div class="modal-header">가격 수정</div>
+            <form onsubmit="savePriceEdit(event)">
+                <div class="form-group">
+                    <label>제품명</label>
+                    <input type="text" value="이온히팅 30평 Standard" readonly>
+                </div>
+                <div class="form-group">
+                    <label>신규 공시 가격</label>
+                    <input type="number" required value="2500000">
+                </div>
+                <div class="form-group">
+                    <label>변경 사유</label>
+                    <textarea required placeholder="가격 변경 사유를 입력하세요"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">저장</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Role Switching
+        function switchRole(role) {
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(role + '-view').classList.add('active');
+        }
+
+        // Consumer Functions
+        function searchInstallers() {
+            showSuccess('consumer', '주변 설비업체를 검색했습니다!');
+        }
+
+        function selectInstaller(id) {
+            showSuccess('consumer', '설비업체를 선택했습니다. 상담을 신청해보세요!');
+        }
+
+        function submitConsultation(e) {
+            e.preventDefault();
+            showSuccess('consumer', '상담 신청이 완료되었습니다! 설비업체에서 곧 연락드릴 예정입니다.');
+            e.target.reset();
+        }
+
+        function submitAS(e) {
+            e.preventDefault();
+            showSuccess('consumer', 'A/S 신고가 접수되었습니다. 담당 설비업체에서 곧 연락드릴 예정입니다.');
+            e.target.reset();
+        }
+
+        // Installer Functions
+        function switchInstallerTab(tab) {
+            document.querySelectorAll('#installer-view .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#installer-view .tab-content').forEach(c => c.style.display = 'none');
+            
+            event.target.classList.add('active');
+            document.getElementById('installer-' + tab).style.display = 'block';
+        }
+
+        function createQuote() {
+            switchInstallerTab('quote');
+            document.querySelectorAll('#installer-view .tab')[1].classList.add('active');
+            showSuccess('installer', '견적 작성 페이지로 이동했습니다.');
+        }
+
+        function submitQuote(e) {
+            e.preventDefault();
+            showSuccess('installer', '견적서가 고객에게 발송되었습니다!');
+            e.target.reset();
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+            showSuccess('installer', '본사에 주문이 접수되었습니다. 승인 대기 중입니다.');
+            e.target.reset();
+        }
+
+        function updatePrice() {
+            // Price calculation logic would go here
+        }
+
+        // Admin Functions
+        function switchAdminTab(tab) {
+            document.querySelectorAll('#admin-view .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#admin-view .tab-content').forEach(c => c.style.display = 'none');
+            
+            event.target.classList.add('active');
+            document.getElementById('admin-' + tab).style.display = 'block';
+        }
+
+        function editPrice() {
+            document.getElementById('price-modal').classList.add('active');
+        }
+
+        function addPrice() {
+            showSuccess('admin', '새 제품 추가 기능은 개발 중입니다.');
+        }
+
+        function savePriceEdit(e) {
+            e.preventDefault();
+            showSuccess('admin', '가격이 수정되었습니다. 모든 화면에 즉시 반영됩니다.');
+            closeModal('price-modal');
+        }
+
+        function approveInstaller() {
+            showSuccess('admin', '설비업체가 승인되었습니다. 이제 플랫폼을 사용할 수 있습니다.');
+        }
+
+        function approveOrder() {
+            showSuccess('admin', '주문이 승인되어 발송 처리되었습니다.');
+        }
+
+        // Utility Functions
+        function showSuccess(view, message) {
+            const successEl = document.getElementById(view + '-success');
+            successEl.textContent = message;
+            successEl.classList.add('active');
+            
+            setTimeout(() => {
+                successEl.classList.remove('active');
+            }, 5000);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
