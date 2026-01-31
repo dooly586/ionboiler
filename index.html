@@ -505,11 +505,53 @@
         <button class="role-btn" onclick="switchRole('installer')">설비업체</button>
         <button class="role-btn" onclick="switchRole('admin')">본사 관리자</button>
     </div>
+    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+        <a href="#" onclick="openRegistrationModal()" style="font-size: 13px; color: #667eea; text-decoration: none; border-bottom: 1px dashed #667eea; padding-bottom: 2px;">👉 설비업체 제휴 신청하기 (신규)</a>
+    </div>
 
     <div class="container">
         <!-- Consumer View -->
         <div id="consumer-view" class="view active">
             <div class="success-message" id="consumer-success"></div>
+
+            <!-- Energy Savings Calculator (NEW) -->
+            <div class="card" style="background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%); border: 1px solid #bae6fd;">
+                <h2 style="color: #0284c7; border-bottom-color: #bae6fd;">⚡ 우리집 난방비 얼마나 줄어들까?</h2>
+                <p style="margin-bottom: 15px; font-size: 14px; color: #555;">현재 월 평균 난방비를 입력해보세요.</p>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                    <select id="current-boiler-type" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; flex: 1; background: #f8fafc;">
+                        <option value="electric">일반 전기난방 (기존)</option>
+                        <option value="gas">가스 보일러</option>
+                        <option value="heatpump">히트펌프</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 4px;">🔥 월 평균 난방비 (필수)</label>
+                        <input type="number" id="current-cost" placeholder="예: 200000" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #64748b; margin-bottom: 4px;">🛠️ 연간 유지보수비</label>
+                            <input type="number" id="current-maintenance" placeholder="0" value="0" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #64748b; margin-bottom: 4px;">🔩 연간 소모품비</label>
+                            <input type="number" id="current-consumables" placeholder="0" value="0" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%;" onclick="calculateSavings()">📉 비용 절감액 계산하기</button>
+
+                <div id="savings-result" style="margin-top: 15px; display: none; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <div id="result-detail">
+                        <!-- JS renders result here -->
+                    </div>
+                </div>
+            </div>
 
             <!-- Map & Search -->
             <div class="card">
@@ -529,7 +571,10 @@
                 <div class="installer-list">
                     <div class="installer-card" onclick="selectInstaller(1)">
                         <div class="installer-header">
-                            <div class="installer-name">일산보일러설비</div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; background: #e0e7ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">👷‍♂️</div>
+                                <div class="installer-name">일산보일러설비</div>
+                            </div>
                             <div class="rating">⭐ 4.8 (127)</div>
                         </div>
                         <div class="installer-info">📞 010-1234-5678</div>
@@ -539,7 +584,10 @@
 
                     <div class="installer-card" onclick="selectInstaller(2)">
                         <div class="installer-header">
-                            <div class="installer-name">경기보일러</div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔧</div>
+                                <div class="installer-name">경기보일러</div>
+                            </div>
                             <div class="rating">⭐ 4.6 (89)</div>
                         </div>
                         <div class="installer-info">📞 010-2345-6789</div>
@@ -549,7 +597,10 @@
 
                     <div class="installer-card" onclick="selectInstaller(3)">
                         <div class="installer-header">
-                            <div class="installer-name">프리미엄설비</div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 40px; height: 40px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">🛠️</div>
+                                <div class="installer-name">프리미엄설비</div>
+                            </div>
                             <div class="rating">⭐ 4.9 (203)</div>
                         </div>
                         <div class="installer-info">📞 010-3456-7890</div>
@@ -573,24 +624,19 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>이온히팅 보일러 Standard</td>
-                            <td>20평</td>
-                            <td class="price">2,200,000원</td>
+                            <td>NE131</td>
+                            <td>300평</td>
+                            <td class="price">17,500,000원</td>
                         </tr>
                         <tr>
-                            <td>이온히팅 보일러 Standard</td>
+                            <td>NE334</td>
+                            <td>70평</td>
+                            <td class="price">4,500,000원</td>
+                        </tr>
+                        <tr>
+                            <td>NE334</td>
                             <td>30평</td>
-                            <td class="price">2,500,000원</td>
-                        </tr>
-                        <tr>
-                            <td>이온히팅 보일러 Premium</td>
-                            <td>30평</td>
-                            <td class="price">2,900,000원</td>
-                        </tr>
-                        <tr>
-                            <td>이온히팅 보일러 Premium</td>
-                            <td>40평</td>
-                            <td class="price">3,200,000원</td>
+                            <td class="price">1,500,000원</td>
                         </tr>
                     </tbody>
                 </table>
@@ -680,10 +726,10 @@
                 <div class="quote-comparison">
                     <div class="quote-card best">
                         <div class="quote-installer">✅ 일산보일러설비 (추천)</div>
-                        <div class="quote-price">2,580,000원</div>
-                        <div class="price-diff">공시가 대비 +3.2% (80,000원)</div>
+                        <div class="quote-price">2,080,000원</div>
+                        <div class="price-diff">공시가(1.5M) + 시공비</div>
                         <p style="font-size: 13px; color: #666; margin-top: 10px;">
-                            • 제품: 이온히팅 30평 Standard<br>
+                            • 제품: NE334 30평<br>
                             • 공임비: 300,000원<br>
                             • 부자재: 280,000원<br>
                             • 시공기간: 1일<br>
@@ -694,10 +740,10 @@
 
                     <div class="quote-card">
                         <div class="quote-installer">경기보일러</div>
-                        <div class="quote-price">2,750,000원</div>
-                        <div class="price-diff over">공시가 대비 +10% (250,000원)</div>
+                        <div class="quote-price">2,250,000원</div>
+                        <div class="price-diff over">공시가 대비 +750,000원</div>
                         <p style="font-size: 13px; color: #666; margin-top: 10px;">
-                            • 제품: 이온히팅 30평 Standard<br>
+                            • 제품: NE334 30평<br>
                             • 공임비: 350,000원<br>
                             • 부자재: 400,000원<br>
                             • 시공기간: 1일<br>
@@ -708,10 +754,10 @@
 
                     <div class="quote-card">
                         <div class="quote-installer">프리미엄설비</div>
-                        <div class="quote-price">2,650,000원</div>
-                        <div class="price-diff over">공시가 대비 +6% (150,000원)</div>
+                        <div class="quote-price">2,150,000원</div>
+                        <div class="price-diff over">공시가 대비 +650,000원</div>
                         <p style="font-size: 13px; color: #666; margin-top: 10px;">
-                            • 제품: 이온히팅 30평 Standard<br>
+                            • 제품: NE334 30평<br>
                             • 공임비: 350,000원<br>
                             • 부자재: 300,000원<br>
                             • 시공기간: 1일<br>
@@ -817,6 +863,12 @@
                 <!-- Quote Creation -->
                 <div id="installer-quote" class="tab-content" style="display: none;">
                     <h3>견적서 작성</h3>
+                    
+                    <!-- Promotional Banner (NEW) -->
+                    <div style="background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+                        <span>📢</span>
+                        <strong>[프로모션]</strong> 본사 제품 주문 시 10% 추가 할인 적용 중! 마진율을 높이세요.
+                    </div>
                     <form onsubmit="submitQuote(event)">
                         <div class="form-group">
                             <label>고객 정보</label>
@@ -830,9 +882,9 @@
                             <label>제품 선택</label>
                             <select required onchange="updatePrice()">
                                 <option value="">선택하세요</option>
-                                <option value="2500000">이온히팅 30평 Standard (공시가: 2,500,000원)</option>
-                                <option value="2900000">이온히팅 30평 Premium (공시가: 2,900,000원)</option>
-                                <option value="3200000">이온히팅 40평 Premium (공시가: 3,200,000원)</option>
+                                <option value="17500000">NE131 300평 (공시가: 17,500,000원)</option>
+                                <option value="4500000">NE334 70평 (공시가: 4,500,000원)</option>
+                                <option value="1500000">NE334 30평 (공시가: 1,500,000원)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -883,10 +935,9 @@
                             <label>제품 선택</label>
                             <select required>
                                 <option value="">선택하세요</option>
-                                <option value="1">이온히팅 20평 Standard - 2,200,000원</option>
-                                <option value="2">이온히팅 30평 Standard - 2,500,000원</option>
-                                <option value="3">이온히팅 30평 Premium - 2,900,000원</option>
-                                <option value="4">이온히팅 40평 Premium - 3,200,000원</option>
+                                <option value="1">NE131 300평 - 15,750,000원 (10% DC)</option>
+                                <option value="2">NE334 70평 - 4,050,000원 (10% DC)</option>
+                                <option value="3">NE334 30평 - 1,350,000원 (10% DC)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -958,7 +1009,7 @@
                             <span class="badge badge-progress">배송 중</span>
                         </div>
                         <div style="margin-bottom: 10px;">
-                            이온히팅 30평 Standard x 1개<br>
+                            NE334 30평 x 1개<br>
                             주문일: 2024.03.10 | 배송 예정: 2024.03.15<br>
                             배송지: 고양시 일산동구 마두동 123-45
                         </div>
@@ -1044,30 +1095,23 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>이온히팅 보일러 Standard</td>
-                                <td>20평</td>
-                                <td class="price">2,200,000원</td>
+                                <td>NE131</td>
+                                <td>300평</td>
+                                <td class="price">17,500,000원</td>
                                 <td>2024.03.01</td>
                                 <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
                             </tr>
                             <tr>
-                                <td>이온히팅 보일러 Standard</td>
+                                <td>NE334</td>
+                                <td>70평</td>
+                                <td class="price">4,500,000원</td>
+                                <td>2024.03.01</td>
+                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
+                            </tr>
+                            <tr>
+                                <td>NE334</td>
                                 <td>30평</td>
-                                <td class="price">2,500,000원</td>
-                                <td>2024.03.01</td>
-                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
-                            </tr>
-                            <tr>
-                                <td>이온히팅 보일러 Premium</td>
-                                <td>30평</td>
-                                <td class="price">2,900,000원</td>
-                                <td>2024.03.01</td>
-                                <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
-                            </tr>
-                            <tr>
-                                <td>이온히팅 보일러 Premium</td>
-                                <td>40평</td>
-                                <td class="price">3,200,000원</td>
+                                <td class="price">1,500,000원</td>
                                 <td>2024.03.01</td>
                                 <td><button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPrice()">수정</button></td>
                             </tr>
@@ -1187,7 +1231,7 @@
                         </div>
                         <div style="margin-top: 10px;">
                             주문 업체: 일산보일러설비<br>
-                            제품: 이온히팅 30평 Standard x 2개<br>
+                            제품: NE334 30평 x 2개<br>
                             총액: 5,000,000원<br>
                             배송지: 고양시 일산동구 마두동 123-45<br>
                             희망 배송일: 2024.03.20
@@ -1206,7 +1250,7 @@
                         </div>
                         <div style="margin-top: 10px;">
                             주문 업체: 프리미엄설비<br>
-                            제품: 이온히팅 30평 Premium x 1개<br>
+                            제품: NE334 70평 x 1개<br>
                             발송일: 2024.03.12 | 예상 도착: 2024.03.15<br>
                             운송장: CJ대한통운 123456789
                         </div>
@@ -1228,15 +1272,15 @@
                             <tr>
                                 <td>#ORD-2024-0088</td>
                                 <td>일산보일러설비</td>
-                                <td>30평 Standard x 1</td>
-                                <td class="price">2,500,000원</td>
+                                <td>NE334 30평 x 1</td>
+                                <td class="price">1,500,000원</td>
                                 <td>2024.03.10</td>
                             </tr>
                             <tr>
                                 <td>#ORD-2024-0087</td>
                                 <td>경기보일러</td>
-                                <td>40평 Premium x 1</td>
-                                <td class="price">3,200,000원</td>
+                                <td>NE334 70평 x 1</td>
+                                <td class="price">4,500,000원</td>
                                 <td>2024.03.08</td>
                             </tr>
                         </tbody>
@@ -1292,20 +1336,16 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>30평 Standard</td>
+                                        <td>NE334 30평</td>
                                         <td class="price">523대</td>
                                     </tr>
                                     <tr>
-                                        <td>30평 Premium</td>
+                                        <td>NE334 70평</td>
                                         <td class="price">312대</td>
                                     </tr>
                                     <tr>
-                                        <td>40평 Premium</td>
-                                        <td class="price">245대</td>
-                                    </tr>
-                                    <tr>
-                                        <td>20평 Standard</td>
-                                        <td class="price">165대</td>
+                                        <td>NE131 300평</td>
+                                        <td class="price">45대</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1332,6 +1372,44 @@
         </div>
     </div>
 
+    <!-- Modal for Installer Registration (NEW) -->
+    <div id="registration-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('registration-modal')">&times;</span>
+            <div class="modal-header">설비업체 제휴 신청</div>
+            <form onsubmit="submitRegistration(event)">
+                <div class="form-group">
+                    <label>업체명 (상호)</label>
+                    <input type="text" required placeholder="예: 미래보일러설비">
+                </div>
+                <div class="form-group">
+                    <label>대표자명</label>
+                    <input type="text" required placeholder="홍길동">
+                </div>
+                <div class="form-group">
+                    <label>사업자등록번호</label>
+                    <input type="text" required placeholder="000-00-00000">
+                </div>
+                <div class="form-group">
+                    <label>연락처</label>
+                    <input type="tel" required placeholder="010-1234-5678">
+                </div>
+                <div class="form-group">
+                    <label>활동 지역</label>
+                    <input type="text" required placeholder="예: 서울 강남구, 서초구">
+                </div>
+                <div class="form-group">
+                    <label>보유 자격증 (선택)</label>
+                    <input type="text" placeholder="예: 온수온돌기능사, 가스기능사">
+                </div>
+                <div style="background: #fdf2f8; padding: 15px; border-radius: 6px; margin-bottom: 15px; font-size: 12px; color: #db2777;">
+                    * 신청 후 본사 심사를 거쳐 승인 완료 시 활동 가능합니다. (약 1~3일 소요)
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">신청하기</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal for Price Edit -->
     <div id="price-modal" class="modal">
         <div class="modal-content">
@@ -1340,7 +1418,7 @@
             <form onsubmit="savePriceEdit(event)">
                 <div class="form-group">
                     <label>제품명</label>
-                    <input type="text" value="이온히팅 30평 Standard" readonly>
+                    <input type="text" value="NE334 30평" readonly>
                 </div>
                 <div class="form-group">
                     <label>신규 공시 가격</label>
@@ -1386,6 +1464,100 @@
             e.target.reset();
         }
 
+        // Energy Savings Calculator Logic (10-Year Projection)
+        function calculateSavings() {
+            const currentCostInput = document.getElementById('current-cost').value;
+            const currentMaintInput = document.getElementById('current-maintenance').value;
+            const currentConsumInput = document.getElementById('current-consumables').value;
+            const boilerType = document.getElementById('current-boiler-type').value;
+
+            if (!currentCostInput) {
+                alert('월 평균 난방비를 입력해주세요!');
+                return;
+            }
+            
+            // 1. Current System Costs
+            const monthlyHeating = parseInt(currentCostInput);
+            const yearlyMaint = parseInt(currentMaintInput) || 0;
+            const yearlyConsum = parseInt(currentConsumInput) || 0;
+            
+            const annualCurrentCost = (monthlyHeating * 12) + yearlyMaint + yearlyConsum;
+            const tenYearCurrentCost = annualCurrentCost * 10;
+
+            // 2. Ion Heating Costs
+            // Savings Rates logic
+            let savingsRate = 0;
+            let typeLabel = "";
+            
+            if (boilerType === 'heatpump') {
+                savingsRate = 0.30; 
+                typeLabel = "히트펌프";
+            } else if (boilerType === 'gas') {
+                savingsRate = 0.60;
+                typeLabel = "가스보일러";
+            } else { // electric
+                savingsRate = 0.70;
+                typeLabel = "일반 전기난방";
+            }
+
+            // Ion calculation: 
+            // Ion Heating Bill = Current Heating Bill * (1 - savingsRate)
+            // Fixed Ion Maint = 100,000
+            // Fixed Ion Consum = 100,000
+            const ionMonthlyHeating = monthlyHeating * (1 - savingsRate);
+            const ionYearlyFixed = 100000 + 100000; // Maintenance + Consumables
+            
+            const annualIonCost = (ionMonthlyHeating * 12) + ionYearlyFixed;
+            const tenYearIonCost = annualIonCost * 10;
+
+            // 3. Savings Calculation
+            const annualSavings = annualCurrentCost - annualIonCost;
+            const fiveYearSavings = annualSavings * 5;
+            const tenYearSavings = annualSavings * 10;
+
+            // Display
+            const resultBox = document.getElementById('savings-result');
+            const resultDetail = document.getElementById('result-detail');
+            
+            resultDetail.innerHTML = `
+                <div style="font-size: 14px; font-weight: bold; color: #333; margin-bottom: 15px; text-align: center;">
+                    ${typeLabel} 대비 교체 시 예상 절감액
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <div style="background: #f0fdf4; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #bbf7d0;">
+                        <div style="font-size: 12px; color: #166534; margin-bottom: 5px;">1년 절감</div>
+                        <div style="font-size: 14px; font-weight: 800; color: #15803d;">${(annualSavings/10000).toLocaleString()}만</div>
+                    </div>
+                    <div style="background: #ecfccb; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #bef264;">
+                        <div style="font-size: 12px; color: #3f6212; margin-bottom: 5px;">5년 절감</div>
+                        <div style="font-size: 14px; font-weight: 800; color: #4d7c0f;">${(fiveYearSavings/10000).toLocaleString()}만</div>
+                    </div>
+                    <div style="background: #e0f2fe; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #7dd3fc;">
+                        <div style="font-size: 12px; color: #0369a1; margin-bottom: 5px;">10년 절감</div>
+                        <div style="font-size: 14px; font-weight: 800; color: #0284c7;">${(tenYearSavings/10000).toLocaleString()}만</div>
+                    </div>
+                </div>
+                
+                <div style="background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+                        <span>기존 연간 비용:</span>
+                        <span style="font-weight: 600; color: #64748b;">${annualCurrentCost.toLocaleString()}원</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>이온히팅 연간 비용:</span>
+                        <span style="font-weight: 700; color: #0284c7;">${annualIonCost.toLocaleString()}원</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px; font-size: 11px; color: #94a3b8; line-height: 1.4;">
+                    * 10년 총 절감액: ₩ ${tenYearSavings.toLocaleString()}원<br>
+                    * 이온히팅 고정비(연 20만원) 포함 / 난방비 ${(savingsRate*100).toFixed(0)}% 절감 기준
+                </div>
+            `;
+            resultBox.style.display = 'block';
+        }
+
         // Installer Functions
         function switchInstallerTab(tab) {
             document.querySelectorAll('#installer-view .tab').forEach(t => t.classList.remove('active'));
@@ -1414,7 +1586,37 @@
         }
 
         function updatePrice() {
-            // Price calculation logic would go here
+            const productSelect = document.querySelector('#installer-quote select[onchange="updatePrice()"]');
+            const laborInput = document.querySelector('#installer-quote input[placeholder="300000"]');
+            const materialInput = document.querySelector('#installer-quote input[placeholder="280000"]');
+            const travelInput = document.querySelector('#installer-quote input[placeholder="0"]');
+            const discountInput = document.querySelector('#installer-quote input[placeholder="0"]');
+            const resultBox = document.querySelector('#installer-quote div[style*="background: #f0f9ff"]');
+
+            const productPrice = parseInt(productSelect.value) || 0;
+            const laborCost = parseInt(laborInput.value) || 0;
+            const materialCost = parseInt(materialInput.value) || 0;
+            const travelCost = parseInt(travelInput.value) || 0;
+            const discount = parseInt(discountInput.value) || 0;
+
+            const total = productPrice + laborCost + materialCost + travelCost - discount;
+            const comparison = total - productPrice; // Simply showing extra costs as comparison for now or diff from official price?
+            // Let's match the UX: "Official Price vs Quote"
+            // Actually the UI shows "vs Official Price" but official price IS the product price usually.
+            // Let's just show Total.
+
+            resultBox.innerHTML = `
+                <strong style="color: #667eea;">예상 총액: ${total.toLocaleString()}원</strong><br>
+                <span style="font-size: 13px; color: #666;">제품가(${productPrice.toLocaleString()}) + 시공비 등</span>
+            `;
+
+            // Attach listeners to inputs if not already attached (simple way)
+            const inputs = [laborInput, materialInput, travelInput, discountInput];
+            inputs.forEach(input => {
+                if(input && !input.oninput) {
+                    input.oninput = updatePrice;
+                }
+            });
         }
 
         // Admin Functions
@@ -1457,6 +1659,22 @@
             setTimeout(() => {
                 successEl.classList.remove('active');
             }, 5000);
+        }
+
+        function openRegistrationModal() {
+            document.getElementById('registration-modal').classList.add('active');
+        }
+
+        function submitRegistration(e) {
+            e.preventDefault();
+            // In a real app, this would send data to the server
+            // Here we simulate a success message and close the modal
+            closeModal('registration-modal');
+            
+            // Show a global success toast or alert
+            // Since we don't have a global toast container, we'll alert simply or reuse a success message div from active view if possible.
+            // Let's use a simple alert for this distinct action or create a temporary element.
+            alert("✅ 제휴 신청이 접수되었습니다!\n본사 심사 후 승인 결과가 문자로 발송됩니다.");
         }
 
         function closeModal(modalId) {
